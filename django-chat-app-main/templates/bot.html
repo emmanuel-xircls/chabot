@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xircls Chatbot</title>
+    <style>
+        body {
+            background-color: #4CAF50;
+        }
+
+        .chat-container {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 400px;
+            padding: 10px;
+        }
+
+        #chat-display {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        .user-input-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-input {
+            flex: 1;
+            margin-right: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+
+        #send-btn
+        {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        #clear-btn {
+            padding: 5px 10px;
+            background-color: #FF0000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .bot-message {
+            color: #0066cc;
+        }
+
+        .bot-area {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .bot-headline {
+            color: #0066cc;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body style="background-color: #eaeaea;">
+    <h1 style="text-align: center; background-color: #333; color: #fff; padding: 10px;">Xircls Chatbot</h1>
+    <div class="chat-container">
+        <h2 class="bot-headline">Chatbot</h2>
+        <div id="chat-display"></div>
+        <form  method="post" action="">
+        {% csrf_token %}
+        <div class="user-input-container">
+            <input type="text" id="user_input" value = '' name="user_input" placeholder="Type your message...">
+            <button type="submit" id="send-btn">Send</button>
+        </div>
+    </form>    
+    <br><button  id="clear-btn">Clear</button>
+
+
+    </div>
+
+    <script>
+        const chatDisplay = document.getElementById('chat-display');
+        const userInput = document.getElementById('user_input');
+        const sendBtn = document.getElementById('send-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const localStorageKey = 'chatHistory';
+        let chatHistory = [];
+
+        sendBtn.addEventListener('click', sendMessage);
+        clearBtn.addEventListener('click', clearChat);
+        // userInput.addEventListener('keydown', function(event) {
+        //     if (event.key === 'Enter') {
+        //         sendMessage();
+        //     }
+        // });
+
+        restoreChatHistory();
+
+        function sendMessage() {
+            const userMessage = userInput.value;
+
+            processMessage(userMessage);
+        }
+
+        function clearChat() {
+            chatDisplay.innerHTML = '';
+            chatHistory = [];
+            localStorage.removeItem(localStorageKey);
+        }
+
+        function restoreChatHistory() {
+            const savedChatHistory = localStorage.getItem(localStorageKey);
+            if (savedChatHistory) {
+                chatHistory = JSON.parse(savedChatHistory);
+                chatDisplay.innerHTML = chatHistory.join('');
+            }
+        }
+
+        function saveChatHistory() {
+            localStorage.setItem(localStorageKey, JSON.stringify(chatHistory));
+        }
+
+        function answer(message){
+            printMessage('BOT: ' + message, 'bot');
+        }
+
+        function processMessage(message) {
+            printMessage('You: ' + message, 'user');
+        }
+
+        function printMessage(message, senderClass) {
+            const messageElement = document.createElement('p');
+            messageElement.innerHTML = message;
+            messageElement.classList.add(senderClass);
+
+            chatDisplay.appendChild(messageElement);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+            chatHistory.push(messageElement.outerHTML);
+            saveChatHistory();
+        }
+        $(document).ready(function() {
+          // Capture the form submission event
+          $('form').on('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+      
+            // Get the form data
+            var formData = $(this).serialize();
+            console.log(formData);
+            // Send an AJAX request to the server
+            $.ajax({
+              type: 'POST',
+              url: '',
+              data: formData,
+              success: function(response) {
+                // Display the response on the page
+                console.log(response.output);
+                answer(response.output);
+                userInput.value = '';
+
+              }
+            });
+          });
+        });
+      </script>
+</body>
+</html>
+
+
+<!-- Feedback and Ratings:
+
+User input: "Rate your service"
+Response: "We value your feedback! Please take a moment to rate your experience on a scale of 1 to 5."
+Account-related inquiries:
+
+User input: "I forgot my password"
+Response: "No worries! You can reset your password by clicking on the 'Forgot Password' link on the login page."
+Order tracking:
+
+User input: "Where is my order?"
+Response: "To track your order, please enter your order number or visit the 'Order Tracking' section on our website."
+Promotions and Discounts:
+
+User input: "Are there any ongoing promotions?"
+Response: "Yes, we currently have a promotion running! Use the code 'SUMMER20' during checkout to get a 20% discount."
+Product recommendations:
+
+User input: "Can you recommend a good laptop?"
+Response: "Certainly! Based on your requirements, we recommend checking out the XYZ model. It has excellent performance and great customer reviews."
+Troubleshooting assistance:
+
+User input: "I'm having trouble connecting to the internet"
+Response: "Please try restarting your modem and router. If the issue persists, you can contact our technical support team at support@example.com for further assistance."
+FAQ redirection:
+
+User input: "What is your return policy?"
+Response: "Our return policy is detailed on our website. You can find it in the 'Returns and Refunds' section under the 'Help' menu."
+Order customization options:
+
+User input: "Can I customize the color of the product?"
+Response: "Yes, for select products, you can customize the color during the ordering process. Look for the 'Customize' option on the product page." -->
